@@ -1,14 +1,13 @@
 const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
-const fs = require("fs");
+const fs = require("fs-extra");
 const async = require("async");
 
 const configJson = JSON.parse(fs.readFileSync("config.json"));
 
 const file = configJson.filename;
 const today = new Date();
-//const folder = configJson.sortByDate ? configJson.writeTo + today.getFullYear() + "/" + (today.getMonth() + 1) + "/" : configJson.writeTo + file.replace("." + configJson.lighthouseFlags.output, "") + "/" + today.getFullYear() + "/" + (today.getMonth() + 1) + "/";
-const folder = "./";
+const folder = configJson.writeTo + today.getFullYear() + "/" + (today.getMonth() + 1) + "/";
 const file_prefix = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + "-";
 const dest_file = folder + file_prefix + file;
 
@@ -36,7 +35,7 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
 
 function writeResults (folder, dest_file, address, resultJson) {
     console.log("Writing analysis to " + dest_file);
-    fs.mkdir(folder, {recursive: true}, (err) => {
+    fs.ensureDir(folder, {recursive: true}, (err) => {
         if (!err) {
             resultString = resultJson.lighthouseVersion + ", " +
                 resultJson.fetchTime + ", " +
