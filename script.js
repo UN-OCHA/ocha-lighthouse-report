@@ -3,7 +3,7 @@ const chromeLauncher = require('chrome-launcher');
 const fs = require("fs-extra");
 const async = require("async");
 
-const configJson = JSON.parse(fs.readFileSync("config.json"));
+const configJson = require('./package.json').lighthouse;
 
 const file = configJson.filename;
 const today = new Date();
