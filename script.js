@@ -1,9 +1,11 @@
+const path = require('path');
 const lighthouse = require('lighthouse');
 const chromeLauncher = require('chrome-launcher');
 const fs = require("fs-extra");
 const async = require("async");
 
-const configJson = require('./package.json').lighthouse;
+const cwdPath = path.resolve(process.cwd(), 'package.json');
+const configJson = require(cwdPath).lighthouse;
 
 const file = configJson.filename;
 const today = new Date();
@@ -74,9 +76,7 @@ if (configJson.urls_to_analyze + configJson.offset > configJson.url.length ) { l
 
 console.log("Analyzing " + configJson.url.length + " urls");
 
-//for (let i = configJson.offset; i < last ; i++) {
 async.eachSeries(configJson.url, function (address, next) {
-    //address = configJson.url[i];
     console.log("Starting analysis on " + address);
     launchChromeAndRunLighthouse(address, configJson)
         .then(results => {next();})
