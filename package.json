@@ -8,10 +8,30 @@
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
+  "dependencies": {
+    "async": "^3.0.1",
+    "fs-extra": "^8.1.0",
     "lighthouse": "^3.2.1"
   },
-  "dependencies": {
-    "async": "^3.0.1"
+  "lighthouse": {
+    "url": [
+      "http://iasc8.local.docksal/etlp-workshop-23-27-april-2018"
+    ],
+    "lighthouseFlags": {
+      "output": "json",
+      "emulated-form-factor": "mobile",
+      "onlyCategories": [
+        "accessibility",
+        "seo",
+        "performance",
+        "pwa",
+        "best-practices"
+      ]
+    },
+    "chromeFlags": [
+      "--headless"
+    ],
+    "writeTo": "./",
+    "filename": "lighthouse.csv"
   }
 }
