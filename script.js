@@ -41,7 +41,7 @@ function launchChromeAndRunLighthouse(url, configJson, n_attempts = 0) {
             {
                 console.log(url + " run successfully with 0 performance, rerunning lighthouse. Attempt: " + n_attempts + " of " + max_attempts );
                 n_attempts++;
-                launchChromeAndRunLighthouse(url, configJson)
+                launchChromeAndRunLighthouse(url, configJson, n_attempts)
                     .catch(err => {
                         console.log(err)
                     });
