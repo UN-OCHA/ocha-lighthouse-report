@@ -5,6 +5,7 @@ const async = require("async");
 
 const configJson = JSON.parse(fs.readFileSync("config.json"));
 
+// Build destionation filename
 const file = configJson.filename;
 const today = new Date();
 //const folder = configJson.sortByDate ? configJson.writeTo + today.getFullYear() + "/" + (today.getMonth() + 1) + "/" : configJson.writeTo + file.replace("." + configJson.lighthouseFlags.output, "") + "/" + today.getFullYear() + "/" + (today.getMonth() + 1) + "/";
@@ -12,16 +13,34 @@ const folder = "./";
 const file_prefix = today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate() + "-";
 const dest_file = folder + file_prefix + file;
 
-function launchChromeAndRunLighthouse(url, opts, config = null) {
-    return chromeLauncher.launch({chromeFlags: opts.chromeFlags}).then(chrome => {
+const max_attempts = configJson.max_attempts;
+
+if (configJson.url){
+    console.log("Analyzing " + configJson.url.length + " urls")
+    async.eachSeries(configJson.url, function (address, next) {
+
+        console.log("Starting analysis on " + address);
+        launchChromeAndRunLighthouse(address, configJson, 0)
+            .then(results => {next();})
+            .catch(err => { console.log(err)});
+    });
+} else {
+    console.log ("ERROR: Config file config.json should be in the same route than the script and have the url, lighthouseFlags, chromeFlags, writeTo, filename, max_attempts fields");
+}
+
+
+function launchChromeAndRunLighthouse(url, configJson, n_attempts = 0) {
+    let resultJson;
+    return chromeLauncher.launch({chromeFlags: configJson.chromeFlags}).then(chrome => {
         console.log("Launching lighthouse for " + url);
-        opts.lighthouseFlags.port = chrome.port;
-        return lighthouse(url, opts.lighthouseFlags, config).then(res => {
+        configJson.lighthouseFlags.port = chrome.port;
+        return lighthouse(url, configJson.lighthouseFlags).then(res => {
             console.log("Parsing report for " + url);
             resultJson = JSON.parse(res.report);
-            if ((res.lhr.categories.performance.score === 0) && (res.lhr.runtimeError.code === "NO_ERROR"))
+            if ((!resultJson.categories.performance.score ) && (resultJson.runtimeError.code === "NO_ERROR") && ( n_attempts < max_attempts) )
             {
-                console.log(url + " run successfully with 0 performance, rerunning lighthouse");
+                console.log(url + " run successfully with 0 performance, rerunning lighthouse. Attempt: " + n_attempts + " of " + max_attempts );
+                n_attempts++;
                 launchChromeAndRunLighthouse(url, configJson)
                     .catch(err => {
                         console.log(err)
@@ -35,6 +54,9 @@ function launchChromeAndRunLighthouse(url, opts, config = null) {
 }
 
 function writeResults (folder, dest_file, address, resultJson) {
+
+    let resultString;
+
     console.log("Writing analysis to " + dest_file);
     fs.mkdir(folder, {recursive: true}, (err) => {
         if (!err) {
@@ -67,19 +89,3 @@ function writeResults (folder, dest_file, address, resultJson) {
 
 }
 
-let resultJson;
-let resultString;
-
-last = configJson.urls_to_analyze + configJson.offset;
-if (configJson.urls_to_analyze + configJson.offset > configJson.url.length ) { last = configJson.url.length; }
-
-console.log("Analyzing " + configJson.url.length + " urls");
-
-//for (let i = configJson.offset; i < last ; i++) {
-async.eachSeries(configJson.url, function (address, next) {
-    //address = configJson.url[i];
-    console.log("Starting analysis on " + address);
-    launchChromeAndRunLighthouse(address, configJson)
-        .then(results => {next();})
-        .catch(err => { console.log(err)});
-});
