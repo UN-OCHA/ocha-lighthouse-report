@@ -9,17 +9,17 @@ It's a Node.JS script, so you need Node / NPM installed on your machine.
 
 # Setup
 
-On Windows, install git and clone the repo
+Install nodejs from https://nodejs.org/en/download/ (for this you need admin access to you laptop)
 
-- Download it and install it with all the default options (click Next)
+On Windows, install git and clone the repo following these instructions:
+
+- Download [git](https://git-scm.com/downloads) and install it with all the default options (click Next)
 - Open Powershell (look for it in the windows bar)
 - Create a new directory for this application 
  - Type ``c:``
  - Type ``mkdir c:\ocha-lighthouse-script``
  - Type ``cd c:\ocha-lighthouse-script``
 - Type ``git clone https://github.com/UN-OCHA/ocha-lighthouse-report/``  
-
-Install nodejs from https://nodejs.org/en/download/ (for this you need admin access to you laptop)
 
 After cloning the repo, run 
 
